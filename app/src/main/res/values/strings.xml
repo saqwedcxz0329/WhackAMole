@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Whack A Mole</string>
+
+    <string name="timer_init">Time: 30 s</string>
+    <string name="score_init">Score: 0 分</string>
+
+    <string name="dialog_title">Game Over</string>
+    <string name="dialog_positiveBtn">OK</string>
+    <string name="dialog_easy">Easy</string>
+    <string name="dialog_hard">Hard</string>
+
+    <string name="menu_description">遊戲說明</string>
+    <string name="menu_description_msg">
+        按下START開始遊戲，遊戲時間為30秒，每打擊到一隻地鼠可得到5分，遊戲結束後將會顯示總分。
+    </string>
+    <string name="menu_level">難易度</string>
+    <string name="menu_level_msg">請選擇難易度</string>
+</resources>
