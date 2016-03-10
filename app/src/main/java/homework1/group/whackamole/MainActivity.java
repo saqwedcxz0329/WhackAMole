@@ -2,6 +2,7 @@ package homework1.group.whackamole;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +12,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -24,15 +27,24 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton imgBtn_mole7,imgBtn_mole8,imgBtn_mole9;
 
     private Button btn_start;
+    private Button btn_record;
+    private Button btn_rank;
 
     private int score = 0;
     private int shimao = 1;
+
+    private final static int DBVersion = 1;
+    private final static String DBName = "Rank.db";
+    private RankDBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ViewInit();
+    }
 
+    private void ViewInit(){
         textView_Time = (TextView) findViewById(R.id.textView);
         textView_Score = (TextView) findViewById(R.id.textView2);
 
@@ -47,8 +59,12 @@ public class MainActivity extends AppCompatActivity {
         imgBtn_mole9 = (ImageButton) findViewById(R.id.imageButton9);
 
         btn_start = (Button) findViewById(R.id.button);
+        btn_record = (Button) findViewById(R.id.score_record);
+        btn_rank = (Button) findViewById(R.id.userank);
 
         btn_start.setOnClickListener(startBtnLst);
+        btn_record.setOnClickListener(recordBtnLst);
+        btn_rank.setOnClickListener(rankBtnLst);
         imgBtn_mole1.setOnClickListener(imgBtnLst);
         imgBtn_mole2.setOnClickListener(imgBtnLst);
         imgBtn_mole3.setOnClickListener(imgBtnLst);
@@ -60,6 +76,23 @@ public class MainActivity extends AppCompatActivity {
         imgBtn_mole9.setOnClickListener(imgBtnLst);
 
         setImgBtnEnabled(false);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(dbHelper == null){
+            dbHelper = new RankDBHelper(this, DBName, null, DBVersion);
+        }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(dbHelper != null){
+            dbHelper.close();
+            dbHelper = null;
+        }
     }
 
     @Override
@@ -108,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             btn_start.setVisibility(View.INVISIBLE);
-
-            new CountDownTimer(30000,1000){
+            score = 0;
+            new CountDownTimer(10000,1000){
                 @Override
                 public void onTick(long millisUntilFinished) {
                     textView_Time.setText("Time: "+(millisUntilFinished/1000)+" s");
@@ -146,12 +179,43 @@ public class MainActivity extends AppCompatActivity {
                                     textView_Time.setText(R.string.timer_init);
                                     textView_Score.setText(R.string.score_init);
                                     setImgBtnEnabled(false);
-
-                                    score = 0;
-                                }
+                            }
                             }).show();
+                    String msg = null;
+                    long rowID = dbHelper.insertRec("Rching", String.valueOf(score));
+                    if(rowID != -1) {
+                        msg = "新增記錄成功";
+                    }
+                    else {
+                        msg = "新增記錄失敗";
+                    }
+                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }.start();
+        }
+    };
+
+    private Button.OnClickListener recordBtnLst = new Button.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String msg = null;
+            long rowID = dbHelper.insertRec("Rching", String.valueOf(score));
+            if(rowID != -1) {
+                msg = "新增記錄成功";
+            }
+            else {
+                msg = "新增記錄失敗";
+            }
+            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private Button.OnClickListener rankBtnLst = new Button.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, RankActivity.class);
+            startActivity(intent);
         }
     };
 
